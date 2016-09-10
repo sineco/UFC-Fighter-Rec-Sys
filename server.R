@@ -33,15 +33,19 @@ fights$method_d[fights$method_d == "Arm Triangle Choke"] <- "Arm-Triangle Choke"
 
 # A non-reactive function that will be available to each user session
 similarityFunction <- function(type_win, method_win) {
-    
+    cat("type_win::")
+    print(type_win)
     merged <- merge(x = fights, y = fighters, by.x = 'f1fid', by.y = 'fid', 
                     all.x=TRUE)
     
     wins_by_type <- filter(merged, f1result == 'win', method == type_win, 
                            method_d == method_win)
- 
+   
     wins_by_type <- select(wins_by_type, event_name, f1name, f1result, method, 
                            method_d)
+    cat("Wins by type::")
+    print(wins_by_type)
+    
     #Rank by method_d
     by_name <- group_by(wins_by_type, f1name, method_d )
     rank <- summarise(by_name, count = n())
@@ -63,13 +67,15 @@ findMajorityWins <- function(selected_fighter){
     
 }
 
-findMajorityMethod <- function(selected_fighter){
+findMajorityMethod <- function(selected_fighter, method_win){
     merged <- merge(x = fights, y = fighters, by.x = 'f1fid', by.y = 'fid', 
                     all.x=TRUE)
-    wins <- filter(merged, f1result == 'win', name == selected_fighter)
+    wins <- filter(merged, f1result == 'win', name == selected_fighter, 
+                   method == method_win)
     wins_by_method <- group_by(wins, method_d)
     rank_methods <-summarise(wins_by_method, count = n())
-    # Select the majority method of win (e.g. punches, armbar, etc)   
+    # Select the majority method of win (e.g. punches, armbar, etc)  
+    print(rank_methods)
     majority_method <- rank_methods[[which.max(rank_methods$count),1]]
  
 }
@@ -109,8 +115,7 @@ shinyServer(
                     
             
             my_fights <- filter(merged, name == selected_fighter)
-            #my_fights <- merged[merged$name == selected_fighter,]
-         
+           
             summarise(my_fights,
                       wins = sum(f1result=="win"),
                       number_of_fights = nrow(my_fights),
@@ -130,7 +135,8 @@ shinyServer(
             
             isolate({
                 majority_win <- findMajorityWins(input$my_fighter)
-                majority_method <- findMajorityMethod(input$my_fighter)
+                majority_method <- findMajorityMethod(input$my_fighter, 
+                                                      majority_win)
                 similarityFunction(majority_win, majority_method)
                 
             })
