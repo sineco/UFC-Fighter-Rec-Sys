@@ -51,6 +51,8 @@ similarityFunction <- function(type_win, method_win) {
     rank <- summarise(by_name, count = n())
     df <- arrange(rank, desc(count))
     
+    names(df) <- c("Fighter Name", "Method of Win", "Count")
+    print(df)
     return(df[1:3,])
 }
 
@@ -118,13 +120,13 @@ shinyServer(
            
             summarise(my_fights,
                       wins = sum(f1result=="win"),
-                      number_of_fights = nrow(my_fights),
-                      number_of_KOs = sum(method=="KO"),
-                      number_of_TKOs = sum(method=="TKO"),
-                      number_of_decisions = sum(method=="Decision"),
-                      number_of_submission = sum(method=="Submission"),
-                      number_of_NC = sum(f1result=="NC"),
-                      number_of_draws = sum(f1result=="draw")
+                      fights = nrow(my_fights),
+                      KOs = sum(method=="KO"),
+                      TKOs = sum(method=="TKO"),
+                      decisions = sum(method=="Decision"),
+                      submission = sum(method=="Submission"),
+                      NC = sum(f1result=="NC"),
+                      draws = sum(f1result=="draw")
             )
             
         })
